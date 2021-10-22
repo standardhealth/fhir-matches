@@ -1,14 +1,12 @@
-import { StructureDefinition } from 'fhir/r4';
-import { organizeReviews, Review, ReviewResult, StructureDefinitionReviewer } from '..';
-import SDFHIRVersionReviewer from './sd-fhir-version';
+import { Element } from 'fhir/r4';
+import { organizeReviews, Review, Reviewer, ReviewResult } from '.';
 
-const NAME = 'Aggregate StructureDefinition Reviewer';
+export abstract class AggregateReviewer implements Reviewer {
+  readonly name: string;
+  reviewers: Reviewer[] = [];
 
-export default {
-  name: NAME,
-
-  review(a: StructureDefinition, b: StructureDefinition): Review[] {
-    const reviews = [...SDFHIRVersionReviewer.review(a, b)];
+  review(a: Element, b: Element): Review[] {
+    const reviews = [].concat(...this.reviewers.map(r => r.review(a, b)));
     const organized = organizeReviews(reviews);
     let overallResult: ReviewResult;
     if (organized[ReviewResult.EQUIVALENT].length === reviews.length) {
@@ -40,7 +38,7 @@ export default {
 
     return [
       {
-        reviewer: NAME,
+        reviewer: this.name,
         a: {
           id: a.id
         },
@@ -52,4 +50,4 @@ export default {
       ...reviews
     ];
   }
-} as StructureDefinitionReviewer;
+}

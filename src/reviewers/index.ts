@@ -1,3 +1,4 @@
 export * from './review-utils';
 export * from './Review';
-export * from './StructureDefinitionReviewer';
+export * from './Reviewer';
+export * from './AggregateReviewer';

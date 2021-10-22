@@ -6,7 +6,7 @@ import process from 'process';
 import fs from 'fs-extra';
 import { logger } from './utils';
 import { StructureDefinition } from 'fhir/r4';
-import { AggregateStructureDefinitionReviewer } from './reviewers/builtin';
+import { AggregateSDReviewer } from './reviewers/sd';
 
 app().catch(e => {
   logger.error(`Matches encountered the following unexpected error: ${e.message}`);
@@ -69,7 +69,8 @@ async function app() {
   }
 
   if (a && b) {
-    const [overall, ...details] = AggregateStructureDefinitionReviewer.review(a, b);
+    const reviewer = new AggregateSDReviewer();
+    const [overall, ...details] = reviewer.review(a, b);
     logger.info(`OVERALL: ${overall.result}`);
     logger.info('DETAILS:');
     details.forEach(d => {

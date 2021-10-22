@@ -1,13 +1,15 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { StructureDefinition } from 'fhir/r4';
-import SDFHIRVersionReviewer from '../../../src/reviewers/builtin/sd-fhir-version';
+import { FHIRVersionReviewer } from '../../../src/reviewers/sd';
 import { ReviewResult } from '../../../src/reviewers';
 
-describe('sd-fhir-version', () => {
+describe('FHIRVersionReviewer', () => {
+  let reviewer: FHIRVersionReviewer;
   let a: StructureDefinition;
   let b: StructureDefinition;
   beforeEach(() => {
+    reviewer = new FHIRVersionReviewer();
     a = fs.readJSONSync(
       path.join(__dirname, 'fixtures', 'StructureDefinition-simple-patient-a.json')
     );
@@ -17,11 +19,11 @@ describe('sd-fhir-version', () => {
   });
 
   it('should have the correct name', () => {
-    expect(SDFHIRVersionReviewer.name).toBe('FHIR Version Reviewer');
+    expect(reviewer.name).toBe('FHIR Version Reviewer');
   });
 
   it('should assess two profiles w/ the same FHIR version as equivalent', () => {
-    const result = SDFHIRVersionReviewer.review(a, b);
+    const result = reviewer.review(a, b);
     expect(result).toEqual([
       {
         reviewer: 'FHIR Version Reviewer',
@@ -35,7 +37,7 @@ describe('sd-fhir-version', () => {
   it('should assess two profiles w/ different FHIR versions as disjoint', () => {
     b.fhirVersion = '3.0.1';
 
-    const result = SDFHIRVersionReviewer.review(a, b);
+    const result = reviewer.review(a, b);
     expect(result).toEqual([
       {
         reviewer: 'FHIR Version Reviewer',
@@ -50,7 +52,7 @@ describe('sd-fhir-version', () => {
   it('should assess profiles as unknown when A is missing fhirVersion', () => {
     delete a.fhirVersion;
 
-    const result = SDFHIRVersionReviewer.review(a, b);
+    const result = reviewer.review(a, b);
     expect(result).toEqual([
       {
         reviewer: 'FHIR Version Reviewer',
@@ -65,7 +67,7 @@ describe('sd-fhir-version', () => {
   it('should assess profiles as unknown when B is missing fhirVersion', () => {
     delete b.fhirVersion;
 
-    const result = SDFHIRVersionReviewer.review(a, b);
+    const result = reviewer.review(a, b);
     expect(result).toEqual([
       {
         reviewer: 'FHIR Version Reviewer',
@@ -81,7 +83,7 @@ describe('sd-fhir-version', () => {
     delete a.fhirVersion;
     delete b.fhirVersion;
 
-    const result = SDFHIRVersionReviewer.review(a, b);
+    const result = reviewer.review(a, b);
     expect(result).toEqual([
       {
         reviewer: 'FHIR Version Reviewer',

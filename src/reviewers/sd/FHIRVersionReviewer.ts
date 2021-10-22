@@ -1,14 +1,13 @@
 import { StructureDefinition } from 'fhir/r4';
-import { Review, ReviewResult, StructureDefinitionReviewer } from '..';
+import { Review, ReviewResult } from '..';
+import { SDReviewer } from './SDReviewer';
 
-const NAME = 'FHIR Version Reviewer';
-
-export default {
-  name: NAME,
+export class FHIRVersionReviewer implements SDReviewer {
+  readonly name = 'FHIR Version Reviewer';
 
   review(a: StructureDefinition, b: StructureDefinition): Review[] {
     const baseResult = {
-      reviewer: NAME,
+      reviewer: this.name,
       a: { id: a.id },
       b: { id: b.id }
     };
@@ -50,4 +49,4 @@ export default {
       }
     ];
   }
-} as StructureDefinitionReviewer;
+}

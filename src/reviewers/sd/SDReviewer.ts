@@ -1,7 +1,8 @@
 import { StructureDefinition } from 'fhir/r4';
-import { Review } from './Review';
+import { Reviewer } from '../Reviewer';
+import { Review } from '../Review';
 
-export interface StructureDefinitionReviewer {
+export interface SDReviewer extends Reviewer {
   name: string;
   review(a: StructureDefinition, b: StructureDefinition): Review[];
 }
