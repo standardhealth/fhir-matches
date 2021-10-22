@@ -3,5 +3,5 @@ import { Review } from './Review';
 
 export interface Reviewer {
   name: string;
-  review(a: Element, b: Element): Review[];
+  review(a: Element, b: Element): Review;
 }

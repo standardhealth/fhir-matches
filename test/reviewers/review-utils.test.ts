@@ -1,4 +1,4 @@
-import { ReviewResult } from '../../src/reviewers';
+import { Review, ReviewResult } from '../../src/reviewers';
 import { organizeReviews } from '../../src/reviewers/review-utils';
 describe('review-utils', () => {
   describe('#organizeReviews', () => {
@@ -16,54 +16,14 @@ describe('review-utils', () => {
 
     it('should return an object w/ organized values', () => {
       const reviews = [
-        {
-          reviewer: 'Test0',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.SUBSET
-        },
-        {
-          reviewer: 'Test1',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.OVERLAPPING
-        },
-        {
-          reviewer: 'Test2',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.EQUIVALENT
-        },
-        {
-          reviewer: 'Test3',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.DISJOINT
-        },
-        {
-          reviewer: 'Test4',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.SUPERSET
-        },
-        {
-          reviewer: 'Test5',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.UNKNOWN
-        },
-        {
-          reviewer: 'Test6',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.EQUIVALENT
-        },
-        {
-          reviewer: 'Test7',
-          a: { id: 'a1' },
-          b: { id: 'b2' },
-          result: ReviewResult.DISJOINT
-        }
+        new Review('Test0', 'a1', 'b2', ReviewResult.SUBSET),
+        new Review('Test1', 'a1', 'b2', ReviewResult.OVERLAPPING),
+        new Review('Test2', 'a1', 'b2', ReviewResult.EQUIVALENT),
+        new Review('Test3', 'a1', 'b2', ReviewResult.DISJOINT),
+        new Review('Test4', 'a1', 'b2', ReviewResult.SUPERSET),
+        new Review('Test5', 'a1', 'b2', ReviewResult.UNKNOWN),
+        new Review('Test6', 'a1', 'b2', ReviewResult.EQUIVALENT),
+        new Review('Test7', 'a1', 'b2', ReviewResult.DISJOINT)
       ];
 
       const organized = organizeReviews(reviews);

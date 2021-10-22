@@ -70,10 +70,10 @@ async function app() {
 
   if (a && b) {
     const reviewer = new AggregateSDReviewer();
-    const [overall, ...details] = reviewer.review(a, b);
-    logger.info(`OVERALL: ${overall.result}`);
+    const review = reviewer.review(a, b);
+    logger.info(`OVERALL: ${review.result}`);
     logger.info('DETAILS:');
-    details.forEach(d => {
+    review.details?.childReviews?.forEach(d => {
       logger.info(`  ${d.result}${d.details ? `: ${d.details}` : ''} <${d.reviewer}>`);
     });
   } else {

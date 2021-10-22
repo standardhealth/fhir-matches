@@ -19,19 +19,19 @@ describe('AggregateReviewer', () => {
     expect(reviewer.name).toBe('Test Aggregate Reviewer');
   });
 
-  it('should run all the reviewers', () => {
+  it('should return aggregate review and all child reviewers', () => {
     reviewer.reviewers = [
       getMockReviewer('R1', ReviewResult.EQUIVALENT),
-      getMockReviewer('R2', ReviewResult.OVERLAPPING),
-      getMockReviewer('R3', ReviewResult.DISJOINT)
+      getMockReviewer('R2', ReviewResult.EQUIVALENT),
+      getMockReviewer('R3', ReviewResult.EQUIVALENT)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toEqual([
-      getReview('Test Aggregate Reviewer', ReviewResult.DISJOINT),
-      getReview('R1', ReviewResult.EQUIVALENT),
-      getReview('R2', ReviewResult.OVERLAPPING),
-      getReview('R3', ReviewResult.DISJOINT)
-    ]);
+    const result = reviewer.review(a, b);
+    expect(result).toEqual(
+      new Review('Test Aggregate Reviewer', a, b, ReviewResult.EQUIVALENT)
+        .withChildReview('R1', 'A', 'B', ReviewResult.EQUIVALENT)
+        .withChildReview('R2', 'A', 'B', ReviewResult.EQUIVALENT)
+        .withChildReview('R3', 'A', 'B', ReviewResult.EQUIVALENT)
+    );
   });
 
   it('should report equivalent when all reviewers report equivalent', () => {
@@ -40,9 +40,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.EQUIVALENT),
       getMockReviewer('R3', ReviewResult.EQUIVALENT)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.EQUIVALENT));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.EQUIVALENT);
   });
 
   it('should report subset when all reviewers report subset', () => {
@@ -51,9 +49,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUBSET),
       getMockReviewer('R3', ReviewResult.SUBSET)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.SUBSET));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.SUBSET);
   });
 
   it('should report subset when reviewers report subset and equivalent', () => {
@@ -62,9 +58,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.EQUIVALENT),
       getMockReviewer('R3', ReviewResult.SUBSET)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.SUBSET));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.SUBSET);
   });
 
   it('should report superset when all reviewers report superset', () => {
@@ -73,9 +67,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUPERSET),
       getMockReviewer('R3', ReviewResult.SUPERSET)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.SUPERSET));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.SUPERSET);
   });
 
   it('should report superset when reviewers report superset and equivalent', () => {
@@ -84,9 +76,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUPERSET),
       getMockReviewer('R3', ReviewResult.EQUIVALENT)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.SUPERSET));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.SUPERSET);
   });
 
   it('should report overlapping when all reviewers report overlapping', () => {
@@ -95,9 +85,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.OVERLAPPING),
       getMockReviewer('R3', ReviewResult.OVERLAPPING)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.OVERLAPPING));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.OVERLAPPING);
   });
 
   it('should report overlapping when reviewers report overlapping and equivalent', () => {
@@ -106,9 +94,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.OVERLAPPING),
       getMockReviewer('R3', ReviewResult.OVERLAPPING)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.OVERLAPPING));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.OVERLAPPING);
   });
 
   it('should report overlapping when reviewers report overlapping and subset', () => {
@@ -117,9 +103,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUBSET),
       getMockReviewer('R3', ReviewResult.OVERLAPPING)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.OVERLAPPING));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.OVERLAPPING);
   });
 
   it('should report overlapping when reviewers report overlapping and superset', () => {
@@ -128,9 +112,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUPERSET),
       getMockReviewer('R3', ReviewResult.OVERLAPPING)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.OVERLAPPING));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.OVERLAPPING);
   });
 
   it('should report overlapping when reviewers report subset and superset', () => {
@@ -139,9 +121,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.SUPERSET),
       getMockReviewer('R3', ReviewResult.SUBSET)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.OVERLAPPING));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.OVERLAPPING);
   });
 
   it('should report disjoint when all reviewers report disjoint', () => {
@@ -150,9 +130,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.DISJOINT),
       getMockReviewer('R3', ReviewResult.DISJOINT)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.DISJOINT));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.DISJOINT);
   });
 
   it('should report disjoint when one reviewer reports disjoint', () => {
@@ -164,9 +142,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R3', ReviewResult.DISJOINT),
       getMockReviewer('R3', ReviewResult.UNKNOWN)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(7);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.DISJOINT));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.DISJOINT);
   });
 
   it('should report unknown when all reviewers report unknown', () => {
@@ -175,9 +151,7 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R2', ReviewResult.UNKNOWN),
       getMockReviewer('R3', ReviewResult.UNKNOWN)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(4);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.UNKNOWN));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.UNKNOWN);
   });
 
   it('should report unknown when one reviewer reports unknown (with no disjoints)', () => {
@@ -188,24 +162,13 @@ describe('AggregateReviewer', () => {
       getMockReviewer('R3', ReviewResult.OVERLAPPING),
       getMockReviewer('R3', ReviewResult.UNKNOWN)
     ];
-    const results = reviewer.review(a, b);
-    expect(results).toHaveLength(6);
-    expect(results[0]).toEqual(getReview('Test Aggregate Reviewer', ReviewResult.UNKNOWN));
+    expect(reviewer.review(a, b).result).toBe(ReviewResult.UNKNOWN);
   });
 });
 
-function getMockReviewer(name: string, ...results: ReviewResult[]): Reviewer {
+function getMockReviewer(name: string, result: ReviewResult): Reviewer {
   const m = mock<Reviewer>();
   m.name = name;
-  m.review.mockReturnValue(results.map(r => getReview(name, r)));
+  m.review.mockReturnValue(new Review(name, 'A', 'B', result));
   return m;
-}
-
-function getReview(name: string, result: ReviewResult): Review {
-  return {
-    reviewer: name,
-    a: { id: 'A' },
-    b: { id: 'B' },
-    result
-  };
 }

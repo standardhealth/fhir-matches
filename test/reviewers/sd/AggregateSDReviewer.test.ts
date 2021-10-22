@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import { StructureDefinition } from 'fhir/r4';
 import { AggregateSDReviewer } from '../../../src/reviewers/sd';
-import { ReviewResult } from '../../../src/reviewers';
+import { Review, ReviewResult } from '../../../src/reviewers';
 
 describe('AggregateSDReviewer', () => {
   let reviewer: AggregateSDReviewer;
@@ -10,7 +10,6 @@ describe('AggregateSDReviewer', () => {
   let b: StructureDefinition;
   beforeEach(() => {
     reviewer = new AggregateSDReviewer();
-    //reviewer.review({ id: 'Foo' }, { id: 'Bar' });
     a = fs.readJSONSync(
       path.join(__dirname, 'fixtures', 'StructureDefinition-simple-patient-a.json')
     );
@@ -28,18 +27,20 @@ describe('AggregateSDReviewer', () => {
   });
 
   it('should return an aggregate review first', () => {
-    const results = reviewer.review(a, b);
-    expect(results.length).toBeGreaterThan(1);
-    expect(results[0]).toEqual({
-      reviewer: 'StructureDefinition Reviewer',
-      a: { id: 'simple-patient-a' },
-      b: { id: 'simple-patient-b' },
-      result: ReviewResult.EQUIVALENT
-    });
+    const result = reviewer.review(a, b);
+    expect(result).toMatchObject(
+      new Review(
+        'StructureDefinition Reviewer',
+        'simple-patient-a',
+        'simple-patient-b',
+        ReviewResult.EQUIVALENT
+      )
+    );
+    expect(result.details.childReviews).toHaveLength(1);
   });
 
   it('should return reviews for all registered reviewers', () => {
-    const resultReviewers = reviewer.review(a, b).map(r => r.reviewer);
+    const resultReviewers = reviewer.review(a, b).details.childReviews.map(r => r.reviewer);
     reviewer.reviewers.forEach(reviewer => {
       expect(resultReviewers).toContain(reviewer.name);
     });

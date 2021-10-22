@@ -4,5 +4,5 @@ import { Review } from '../Review';
 
 export interface SDReviewer extends Reviewer {
   name: string;
-  review(a: StructureDefinition, b: StructureDefinition): Review[];
+  review(a: StructureDefinition, b: StructureDefinition): Review;
 }
