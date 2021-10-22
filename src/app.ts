@@ -5,6 +5,8 @@ import { Command } from 'commander';
 import process from 'process';
 import fs from 'fs-extra';
 import { logger } from './utils';
+import { StructureDefinition } from 'fhir/r4';
+import { AggregateStructureDefinitionReviewer } from './reviewers/builtin';
 
 app().catch(e => {
   logger.error(`Matches encountered the following unexpected error: ${e.message}`);
@@ -56,8 +58,29 @@ async function app() {
     logger.info(`  --log-level ${options.logLevel}`);
   }
 
-  logger.info(
-    'FHIR Matches has not yet been implemented. Thank you for visiting.  Please come again.'
+  // NOTE: For now we assume StructureDefinitions, but this will not always be the case
+  let a: StructureDefinition;
+  if (options.resourceA.endsWith('.json') && fs.existsSync(options.resourceA)) {
+    a = fs.readJsonSync(options.resourceA);
+  }
+  let b: StructureDefinition;
+  if (options.resourceB.endsWith('.json') && fs.existsSync(options.resourceB)) {
+    b = fs.readJsonSync(options.resourceB);
+  }
+
+  if (a && b) {
+    const [overall, ...details] = AggregateStructureDefinitionReviewer.review(a, b);
+    logger.info(`OVERALL: ${overall.result}`);
+    logger.info('DETAILS:');
+    details.forEach(d => {
+      logger.info(`  ${d.result}${d.details ? `: ${d.details}` : ''} <${d.reviewer}>`);
+    });
+  } else {
+    logger.error('FHIR Matches currently only supports file paths to StructureDefinitions.');
+  }
+
+  logger.warn(
+    'NOTE: FHIR Matches is ridiculously young and naive. Do not trust it. Even if it smiles nicely at you.'
   );
 
   process.exit(0);
