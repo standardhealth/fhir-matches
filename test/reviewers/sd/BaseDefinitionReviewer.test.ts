@@ -40,4 +40,44 @@ describe('BaseDefinitionReviewer', () => {
         .withMessage('A and B do not have the same types (A: Patient, B: Observation).')
     );
   });
+
+  it('should assess two profiles as unknown when A is missing type', () => {
+    delete a.type;
+
+    const result = reviewer.review(a, b);
+    expect(result).toEqual(
+      stubReview
+        .withResult(ReviewResult.UNKNOWN)
+        .withMessage(
+          'A does not declare a type. Type is a required element of StructureDefinition.'
+        )
+    );
+  });
+
+  it('should assess two profiles as unknown when B is missing type', () => {
+    delete b.type;
+
+    const result = reviewer.review(a, b);
+    expect(result).toEqual(
+      stubReview
+        .withResult(ReviewResult.UNKNOWN)
+        .withMessage(
+          'B does not declare a type. Type is a required element of StructureDefinition.'
+        )
+    );
+  });
+
+  it('should assess two profiles as unknown when A and B are missing type', () => {
+    delete a.type;
+    delete b.type;
+
+    const result = reviewer.review(a, b);
+    expect(result).toEqual(
+      stubReview
+        .withResult(ReviewResult.UNKNOWN)
+        .withMessage(
+          'A and B do not declare a type. Type is a required element of StructureDefinition.'
+        )
+    );
+  });
 });
