@@ -17,18 +17,20 @@ async function app() {
   const options = new Command()
     .name('matches')
     .usage('[options]')
+    // TODO: Future versions should support id and canonical
     .requiredOption(
-      '-a, --resourceA <id|canonical>',
-      'the id or canonical of the first resource for comparison'
+      '-a, --resourceA <filepath>',
+      'the file path to the first resource for comparison'
     )
     .requiredOption(
-      '-b, --resourceB <id|canonical>',
-      'the id or canonical of the second resource for comparison'
+      '-b, --resourceB <filepath>',
+      'the file path to the second resource for comparison'
     )
-    .option(
-      '-d, --dependency <dependency...>',
-      'specify dependencies to be loaded using format dependencyId@version (FHIR R4 included by default)'
-    )
+    // TODO: Implement dependency loading
+    // .option(
+    //   '-d, --dependency <dependency...>',
+    //   'specify dependencies to be loaded using format dependencyId@version (FHIR R4 included by default)'
+    // )
     .option(
       '-l, --log-level <level>',
       'specify the level of log messages: error, warn, info (default), debug'
@@ -51,9 +53,12 @@ async function app() {
   logger.info('Arguments:');
   logger.info(`  --resourceA ${options.resourceA}`);
   logger.info(`  --resourceB ${options.resourceB}`);
-  if (options.dependency) {
-    options.dependency.forEach((d: string) => logger.info(`  --dependency ${d}`));
-  }
+  // TODO: Implement dependency loading
+  // if (options.dependency) {
+  //   options.dependency.forEach((d: string) =>
+  //     logger.info(`  --dependency ${d}`)
+  //   );
+  // }
   if (options.logLevel) {
     logger.info(`  --log-level ${options.logLevel}`);
   }
@@ -73,8 +78,11 @@ async function app() {
     const review = reviewer.review(a, b);
     logger.info(`OVERALL: ${review.result}`);
     logger.info('DETAILS:');
+    // TODO: Reviews can recursively have children. Figure out how to report this.
     review.details?.childReviews?.forEach(d => {
-      logger.info(`  ${d.result}${d.details ? `: ${d.details}` : ''} <${d.reviewer}>`);
+      logger.info(
+        `  ${d.result}${d.details?.message ? `: ${d.details.message}` : ''} <${d.reviewer}>`
+      );
     });
   } else {
     logger.error('FHIR Matches currently only supports file paths to StructureDefinitions.');
