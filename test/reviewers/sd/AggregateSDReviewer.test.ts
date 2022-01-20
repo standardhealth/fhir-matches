@@ -23,7 +23,10 @@ describe('AggregateSDReviewer', () => {
   });
 
   it('should be initialized with the correct reviewers', () => {
-    expect(reviewer.reviewers.map(r => r.name)).toEqual(['FHIR Version Reviewer']);
+    expect(reviewer.reviewers.map(r => r.name)).toEqual([
+      'FHIR Version Reviewer',
+      'Base Definition Reviewer'
+    ]);
   });
 
   it('should return an aggregate review first', () => {
@@ -36,7 +39,7 @@ describe('AggregateSDReviewer', () => {
         ReviewResult.EQUIVALENT
       )
     );
-    expect(result.details.childReviews).toHaveLength(1);
+    expect(result.details.childReviews).toHaveLength(2);
   });
 
   it('should return reviews for all registered reviewers', () => {
