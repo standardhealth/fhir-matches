@@ -80,12 +80,12 @@ describe('CardinalityReviewer', () => {
     expect(review.result).toBe(ReviewResult.EQUIVALENT);
     expect(review.details.message).toBeUndefined();
     const organized = organizeReviews(review.details.childReviews);
-    expect(organized.equivalent).toHaveLength(45);
-    expect(organized.subset).toHaveLength(0);
-    expect(organized.superset).toHaveLength(0);
-    expect(organized.overlapping).toHaveLength(0);
-    expect(organized.disjoint).toHaveLength(0);
-    expect(organized.unknown).toHaveLength(0);
+    expect(organized.EQUIVALENT).toHaveLength(45);
+    expect(organized.SUBSET).toHaveLength(0);
+    expect(organized.SUPERSET).toHaveLength(0);
+    expect(organized.OVERLAPPING).toHaveLength(0);
+    expect(organized.DISJOINT).toHaveLength(0);
+    expect(organized.UNKNOWN).toHaveLength(0);
   });
 
   it('should assess elements with missing cardinality as unknown', () => {

@@ -5,12 +5,12 @@ describe('review-utils', () => {
     it('should return an object w/ empty values when no reviews are passed in', () => {
       const organized = organizeReviews([]);
       expect(organized).toEqual({
-        equivalent: [],
-        subset: [],
-        superset: [],
-        overlapping: [],
-        disjoint: [],
-        unknown: []
+        EQUIVALENT: [],
+        SUBSET: [],
+        SUPERSET: [],
+        OVERLAPPING: [],
+        DISJOINT: [],
+        UNKNOWN: []
       });
     });
 
@@ -29,12 +29,12 @@ describe('review-utils', () => {
       const organized = organizeReviews(reviews);
 
       expect(organized).toEqual({
-        equivalent: [reviews[2], reviews[6]],
-        subset: [reviews[0]],
-        superset: [reviews[4]],
-        overlapping: [reviews[1]],
-        disjoint: [reviews[3], reviews[7]],
-        unknown: [reviews[5]]
+        EQUIVALENT: [reviews[2], reviews[6]],
+        SUBSET: [reviews[0]],
+        SUPERSET: [reviews[4]],
+        OVERLAPPING: [reviews[1]],
+        DISJOINT: [reviews[3], reviews[7]],
+        UNKNOWN: [reviews[5]]
       });
     });
   });
