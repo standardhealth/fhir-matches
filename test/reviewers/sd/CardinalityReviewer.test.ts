@@ -88,6 +88,42 @@ describe('CardinalityReviewer', () => {
     expect(organized.UNKNOWN).toHaveLength(0);
   });
 
+  // TODO: Fix this test or add others when we support comparing on profiles subpaths
+  // that require element "unfolding"
+  it('should ignore elements which exist in A but not in B (TEMPORARY)', () => {
+    // Add an element that won't be in b. Note that this isn't really the full snapshot
+    // as it should be, but it's good enough for this test (and easier to read).
+    const elementToAdd = {
+      id: 'Patient.identifier.system',
+      path: 'Patient.identifier.system',
+      min: 1,
+      max: '1',
+      base: {
+        path: 'Identifier.system',
+        min: 0,
+        max: '1'
+      },
+      type: [
+        {
+          code: 'uri'
+        }
+      ]
+    };
+    const identifierIdx = a.snapshot.element.findIndex(e => e.id === 'Patient.identifier');
+    a.snapshot.element.splice(identifierIdx + 1, 0, elementToAdd);
+    a.differential.element.push(elementToAdd); // not necessary, but I couldn't help myself
+    const review = reviewer.review(a, b);
+    expect(review.result).toBe(ReviewResult.EQUIVALENT);
+    expect(review.details.message).toBeUndefined();
+    const organized = organizeReviews(review.details.childReviews);
+    expect(organized.EQUIVALENT).toHaveLength(45);
+    expect(organized.SUBSET).toHaveLength(0);
+    expect(organized.SUPERSET).toHaveLength(0);
+    expect(organized.OVERLAPPING).toHaveLength(0);
+    expect(organized.DISJOINT).toHaveLength(0);
+    expect(organized.UNKNOWN).toHaveLength(0);
+  });
+
   it('should assess elements with missing cardinality as unknown', () => {
     expectResult(null, '*', 0, '*', ReviewResult.UNKNOWN);
     expectResult(0, null, 0, '*', ReviewResult.UNKNOWN);
@@ -128,11 +164,11 @@ describe('CardinalityReviewer', () => {
   });
 
   describe('when A cardinality is 0..1', () => {
-    it('should assess as equivalent to B cardinality 0..*', () => {
+    it('should assess as subset of B cardinality 0..*', () => {
       expectResult(0, '1', 0, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..1', () => {
+    it('should assess as equivalent to B cardinality 0..1', () => {
       expectResult(0, '1', 0, '1', ReviewResult.EQUIVALENT);
     });
 
@@ -140,7 +176,7 @@ describe('CardinalityReviewer', () => {
       expectResult(0, '1', 0, '0', ReviewResult.SUPERSET);
     });
 
-    it('should assess as superset of B cardinality 1..*', () => {
+    it('should assess as overlapping with B cardinality 1..*', () => {
       expectResult(0, '1', 1, '*', ReviewResult.OVERLAPPING);
     });
 
@@ -148,51 +184,51 @@ describe('CardinalityReviewer', () => {
       expectResult(0, '1', 1, '1', ReviewResult.SUPERSET);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as disjoint with B cardinality 1..1', () => {
       expectResult(0, '1', 2, '3', ReviewResult.DISJOINT);
     });
   });
 
   describe('when A cardinality is 0..0', () => {
-    it('should assess as equivalent to B cardinality 0..*', () => {
+    it('should assess as subset of B cardinality 0..*', () => {
       expectResult(0, '0', 0, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..1', () => {
+    it('should assess as subset of B cardinality 0..1', () => {
       expectResult(0, '0', 0, '1', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..0', () => {
+    it('should assess as equivalent to B cardinality 0..0', () => {
       expectResult(0, '0', 0, '0', ReviewResult.EQUIVALENT);
     });
 
-    it('should assess as superset of B cardinality 1..*', () => {
+    it('should assess as disjoint with B cardinality 1..*', () => {
       expectResult(0, '0', 1, '*', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as v B cardinality 1..1', () => {
       expectResult(0, '0', 1, '1', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as disjoint with B cardinality 1..1', () => {
       expectResult(0, '0', 2, '3', ReviewResult.DISJOINT);
     });
   });
 
   describe('when A cardinality is 1..*', () => {
-    it('should assess as equivalent to B cardinality 0..*', () => {
+    it('should assess as subset of B cardinality 0..*', () => {
       expectResult(1, '*', 0, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..1', () => {
+    it('should assess as overlapping with B cardinality 0..1', () => {
       expectResult(1, '*', 0, '1', ReviewResult.OVERLAPPING);
     });
 
-    it('should assess as superset of B cardinality 0..0', () => {
+    it('should assess as disjoint with B cardinality 0..0', () => {
       expectResult(1, '*', 0, '0', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..*', () => {
+    it('should assess as equivalent to B cardinality 1..*', () => {
       expectResult(1, '*', 1, '*', ReviewResult.EQUIVALENT);
     });
 
@@ -206,53 +242,53 @@ describe('CardinalityReviewer', () => {
   });
 
   describe('when A cardinality is 1..1', () => {
-    it('should assess as equivalent to B cardinality 0..*', () => {
+    it('should assess as subset of B cardinality 0..*', () => {
       expectResult(1, '1', 0, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..1', () => {
+    it('should assess as subset of B cardinality 0..1', () => {
       expectResult(1, '1', 0, '1', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..0', () => {
+    it('should assess as disjoint with B cardinality 0..0', () => {
       expectResult(1, '1', 0, '0', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..*', () => {
+    it('should assess as subset of B cardinality 1..*', () => {
       expectResult(1, '1', 1, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as equivalent to B cardinality 1..1', () => {
       expectResult(1, '1', 1, '1', ReviewResult.EQUIVALENT);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as disjoint with B cardinality 1..1', () => {
       expectResult(1, '1', 2, '3', ReviewResult.DISJOINT);
     });
   });
 
   describe('when A cardinality is 2..3', () => {
-    it('should assess as equivalent to B cardinality 0..*', () => {
+    it('should assess as subset of B cardinality 0..*', () => {
       expectResult(2, '3', 0, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 0..1', () => {
+    it('should assess as disjoint with B cardinality 0..1', () => {
       expectResult(2, '3', 0, '1', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 0..0', () => {
+    it('should assess as disjoint with B cardinality 0..0', () => {
       expectResult(2, '3', 0, '0', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..*', () => {
+    it('should assess as subset of B cardinality 1..*', () => {
       expectResult(2, '3', 1, '*', ReviewResult.SUBSET);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as disjoint with B cardinality 1..1', () => {
       expectResult(2, '3', 1, '1', ReviewResult.DISJOINT);
     });
 
-    it('should assess as superset of B cardinality 1..1', () => {
+    it('should assess as equivalent to B cardinality 1..1', () => {
       expectResult(2, '3', 2, '3', ReviewResult.EQUIVALENT);
     });
   });
