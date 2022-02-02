@@ -206,7 +206,7 @@ describe('CardinalityReviewer', () => {
       expectResult(0, '0', 1, '*', ReviewResult.DISJOINT);
     });
 
-    it('should assess as v B cardinality 1..1', () => {
+    it('should assess as disjoint with B cardinality 1..1', () => {
       expectResult(0, '0', 1, '1', ReviewResult.DISJOINT);
     });
 
