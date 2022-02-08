@@ -1,10 +1,10 @@
 export enum ReviewResult {
-  EQUIVALENT = 'equivalent',
-  SUBSET = 'subset',
-  SUPERSET = 'superset',
-  OVERLAPPING = 'overlapping',
-  DISJOINT = 'disjoint',
-  UNKNOWN = 'unknown'
+  EQUIVALENT = 'EQUIVALENT',
+  SUBSET = 'SUBSET',
+  SUPERSET = 'SUPERSET',
+  OVERLAPPING = 'OVERLAPPING',
+  DISJOINT = 'DISJOINT',
+  UNKNOWN = 'UNKNOWN'
 }
 
 export type Item = {
