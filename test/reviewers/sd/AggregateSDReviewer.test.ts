@@ -26,7 +26,8 @@ describe('AggregateSDReviewer', () => {
     expect(reviewer.reviewers.map(r => r.name)).toEqual([
       'FHIR Version Reviewer',
       'Base Definition Reviewer',
-      'Cardinality Reviewer'
+      'Cardinality Reviewer',
+      'Extension Reviewer'
     ]);
   });
 
@@ -40,7 +41,7 @@ describe('AggregateSDReviewer', () => {
         ReviewResult.EQUIVALENT
       )
     );
-    expect(result.details.childReviews).toHaveLength(3);
+    expect(result.details.childReviews).toHaveLength(4);
   });
 
   it('should return reviews for all registered reviewers', () => {
