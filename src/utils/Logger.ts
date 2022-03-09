@@ -70,6 +70,10 @@ export const logger = createLogger({
   transports: [new transports.Console()]
 });
 
+export const logMessage = (level: string, message: string): void => {
+  logger.log(level, message);
+};
+
 class LoggerStats {
   public numInfo = 0;
   public numWarn = 0;
