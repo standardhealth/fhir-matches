@@ -1,5 +1,5 @@
 import { SDReviewer } from './SDReviewer';
-import { getAggregateResult, Review, ReviewResult } from '..';
+import { getAggregateResult, Review, ReviewResult, compareNumericRanges } from '..';
 import { ElementDefinition, StructureDefinition } from 'fhir/r4';
 
 const NAME = 'Cardinality Reviewer';
@@ -41,22 +41,13 @@ function reviewElement(
     bED.min,
     convertMaxToNumber(bED.max)
   ];
-  if ([aMin, aMax, bMin, bMax].some(x => x == null || Number.isNaN(x))) {
-    review.result = ReviewResult.UNKNOWN;
+  review.result = compareNumericRanges(aMin, aMax, bMin, bMax);
+  if (review.result === ReviewResult.UNKNOWN) {
     review.withMessage(
       'Cannot determine cardinality compatibility because at least one cardinality value is missing or invalid ' +
         `(A: ${aED.min}..${aED.max}, B: ${bED.min}..${bED.max}).`
     );
-  } else if (aMin === bMin && aMax === bMax) {
-    review.result = ReviewResult.EQUIVALENT;
-  } else if (aMin >= bMin && aMax <= bMax) {
-    review.result = ReviewResult.SUBSET;
-  } else if (aMin <= bMin && aMax >= bMax) {
-    review.result = ReviewResult.SUPERSET;
-  } else if ((bMin <= aMin && aMin <= bMax) || (bMin <= aMax && aMax <= bMax)) {
-    review.result = ReviewResult.OVERLAPPING;
-  } else {
-    review.result = ReviewResult.DISJOINT;
+  } else if (review.result === ReviewResult.DISJOINT) {
     review.withMessage(
       `Cardinalities are not compatible (A: ${aED.min}..${aED.max}, B: ${bED.min}..${bED.max}).`
     );

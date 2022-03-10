@@ -277,6 +277,7 @@ describe('ExtensionReviewer', () => {
         'Patient.extension:ExtA'
       );
       expect(extensionReview.result).toBe(ReviewResult.SUBSET);
+      expect(extensionReview.b.path).toBe('Patient.extension');
       const communicationExtensionReview = getReview(
         review.details.childReviews,
         'extension-patient-a',
@@ -305,6 +306,7 @@ describe('ExtensionReviewer', () => {
         'Patient.communication.extension:ExtB'
       );
       expect(communicationExtensionReview.result).toBe(ReviewResult.SUPERSET);
+      expect(communicationExtensionReview.a.path).toBe('Patient.communication.extension');
     });
 
     it('should assess two profiles where A has extension elements not present on B and A is missing extension elements present on B as overlapping', () => {
@@ -326,12 +328,14 @@ describe('ExtensionReviewer', () => {
         'Patient.extension:ExtA'
       );
       expect(extensionReview.result).toBe(ReviewResult.SUBSET);
+      expect(extensionReview.b.path).toBe('Patient.extension');
       const communicationExtensionReview = getReview(
         review.details.childReviews,
         'extension-patient-b',
         'Patient.communication.extension:ExtB'
       );
       expect(communicationExtensionReview.result).toBe(ReviewResult.SUPERSET);
+      expect(communicationExtensionReview.a.path).toBe('Patient.communication.extension');
     });
 
     it('should assess two profiles where A and B have extensions on the same path, but they are different types, as overlapping', () => {

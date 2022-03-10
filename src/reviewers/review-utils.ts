@@ -42,3 +42,24 @@ export function getAggregateResult(reviews: Review[]) {
     return ReviewResult.UNKNOWN;
   }
 }
+
+export function compareNumericRanges(
+  aMin: number,
+  aMax: number,
+  bMin: number,
+  bMax: number
+): ReviewResult {
+  if ([aMin, aMax, bMin, bMax].some(x => x == null || Number.isNaN(x))) {
+    return ReviewResult.UNKNOWN;
+  } else if (aMin === bMin && aMax === bMax) {
+    return ReviewResult.EQUIVALENT;
+  } else if (aMin >= bMin && aMax <= bMax) {
+    return ReviewResult.SUBSET;
+  } else if (aMin <= bMin && aMax >= bMax) {
+    return ReviewResult.SUPERSET;
+  } else if ((bMin <= aMin && aMin <= bMax) || (bMin <= aMax && aMax <= bMax)) {
+    return ReviewResult.OVERLAPPING;
+  } else {
+    return ReviewResult.DISJOINT;
+  }
+}

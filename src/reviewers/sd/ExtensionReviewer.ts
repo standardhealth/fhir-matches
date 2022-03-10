@@ -1,7 +1,7 @@
 import { SDReviewer } from './SDReviewer';
 import { StructureDefinition, ElementDefinition } from 'fhir/r4';
 import { Review, ReviewResult } from '../Review';
-import { getAggregateResult } from '../review-utils';
+import { getAggregateResult, compareNumericRanges } from '../review-utils';
 
 const NAME = 'Extension Reviewer';
 
@@ -29,7 +29,12 @@ export class ExtensionReviewer implements SDReviewer {
         if (bElements.length === 0) {
           // if there are no extensions at this path on B, this element represents a SUBSET
           reviews.push(
-            new Review(NAME, { id: a.id, path: aED.id }, { id: b.id }, ReviewResult.SUBSET)
+            new Review(
+              NAME,
+              { id: a.id, path: aED.id },
+              { id: b.id, path: aED.path },
+              ReviewResult.SUBSET
+            )
           );
         } else {
           // check for the presence of each of the profiles on A's extension element.
@@ -50,23 +55,11 @@ export class ExtensionReviewer implements SDReviewer {
                 const aMax = calculateAggregateMax(aSameProfile);
                 const bMin = calculateAggregateMin(bSameProfile);
                 const bMax = calculateAggregateMax(bSameProfile);
-                // hello cardinality reviewer, how are you doing
-                let aggregateResult: ReviewResult;
                 let aggregateMessage: string;
-                if ([aMin, aMax, bMin, bMax].some(x => x == null || Number.isNaN(x))) {
-                  aggregateResult = ReviewResult.UNKNOWN;
+                const aggregateResult = compareNumericRanges(aMin, aMax, bMin, bMax);
+                if (aggregateResult === ReviewResult.UNKNOWN) {
                   aggregateMessage =
                     "Cannot determine extension compatibility because at least one extension element of this element's type has missing or invalid cardinality.";
-                } else if (aMin === bMin && aMax === bMax) {
-                  aggregateResult = ReviewResult.EQUIVALENT;
-                } else if (aMin >= bMin && aMax <= bMax) {
-                  aggregateResult = ReviewResult.SUBSET;
-                } else if (aMin <= bMin && aMax >= bMax) {
-                  aggregateResult = ReviewResult.SUPERSET;
-                } else if ((bMin <= aMin && aMin <= bMax) || (bMin <= aMax && aMax <= bMax)) {
-                  aggregateResult = ReviewResult.OVERLAPPING;
-                } else {
-                  aggregateResult = ReviewResult.DISJOINT;
                 }
                 const pathTypeReviews: Review[] = [];
                 aSameProfile.forEach(anotherA => {
@@ -97,7 +90,7 @@ export class ExtensionReviewer implements SDReviewer {
                   new Review(
                     NAME,
                     { id: a.id, path: aED.id },
-                    { id: b.id },
+                    { id: b.id, path: aED.path },
                     ReviewResult.SUBSET
                   ).withMessage(`Extension profile: ${aProfile}`)
                 );
@@ -128,7 +121,12 @@ export class ExtensionReviewer implements SDReviewer {
         const aElements = a.snapshot?.element?.filter(ed => ed.path === bED.path);
         if (aElements.length === 0) {
           reviews.push(
-            new Review(NAME, { id: a.id }, { id: b.id, path: bED.id }, ReviewResult.SUPERSET)
+            new Review(
+              NAME,
+              { id: a.id, path: bED.path },
+              { id: b.id, path: bED.id },
+              ReviewResult.SUPERSET
+            )
           );
         } else {
           // check each of B's profiles
@@ -141,7 +139,7 @@ export class ExtensionReviewer implements SDReviewer {
               reviews.push(
                 new Review(
                   NAME,
-                  { id: a.id },
+                  { id: a.id, path: bED.path },
                   { id: b.id, path: bED.id },
                   ReviewResult.SUPERSET
                 ).withMessage(`Extension profile: ${bProfile}`)
