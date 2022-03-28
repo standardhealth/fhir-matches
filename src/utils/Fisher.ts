@@ -1,5 +1,15 @@
-import { FHIRDefinitions, Type, Metadata } from 'fhir-package-loader';
+import { FHIRDefinitions, Type } from 'fhir-package-loader';
 import { cloneDeep } from 'lodash';
+
+interface Metadata {
+  id: string;
+  name: string;
+  sdType?: string;
+  resourceType?: string;
+  url?: string;
+  parent?: string;
+  abstract?: boolean;
+}
 
 export class Fisher {
   protected fhirDefs: FHIRDefinitions;
