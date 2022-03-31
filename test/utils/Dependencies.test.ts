@@ -10,6 +10,7 @@ describe('Dependencies', () => {
     loggerSpy.reset();
   });
 
+  // TODO: Add a describe bloc for determineCorePackageId
   describe('determineCorePackageId', () => {
     it('should recognize FHIR R4 version numbers', () => {
       const packageId1 = determineCorePackageId('4.0.1');
@@ -38,9 +39,9 @@ describe('Dependencies', () => {
       const dependencies = ['hl7.fhir.us.core@3.1.0', 'hl7.fhir.us.mcode@1.0.0'];
       const defs = await loadExternalDependencies(dependencies);
       expect(defs.childFHIRDefs).toHaveLength(3);
-      expect(defs.childFHIRDefs[0].package).toBe('hl7.fhir.r4.core#4.0.1');
-      expect(defs.childFHIRDefs[1].package).toBe('hl7.fhir.us.core#3.1.0');
-      expect(defs.childFHIRDefs[2].package).toBe('hl7.fhir.us.mcode#1.0.0');
+      expect(defs.childFHIRDefs[0].package).toBe('hl7.fhir.us.core#3.1.0');
+      expect(defs.childFHIRDefs[1].package).toBe('hl7.fhir.us.mcode#1.0.0');
+      expect(defs.childFHIRDefs[2].package).toBe('hl7.fhir.r4.core#4.0.1');
     });
   });
 
@@ -64,7 +65,7 @@ describe('Dependencies', () => {
       const dependencies = [' hl7.fhir.us.core#3.1.1', 'hl7.fhir.us.mcode@1.2.0 '];
       const parsedDependencies = reformatDependencies(dependencies);
       expect(loggerSpy.getLastMessage('error')).toBe(
-        "Dependency ' hl7.fhir.us.core#3.1.1' is not formatted correctly and will not be loaded. Please specify depdencies using the format dependencyId@version"
+        "Dependency ' hl7.fhir.us.core#3.1.1' is not formatted correctly and will not be loaded. Please specify dependencies using the format dependencyId@version"
       );
       expect(parsedDependencies).toHaveLength(1);
       expect(parsedDependencies).not.toContain('hl7.fhir.us.core#3.1.1');

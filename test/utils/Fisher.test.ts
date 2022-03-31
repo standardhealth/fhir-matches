@@ -1,5 +1,6 @@
 import { Fisher } from '../../src/utils/Fisher';
 import { loadExternalDependencies } from '../../src/utils/Dependencies';
+import { loggerSpy } from '../testhelpers/loggerSpy';
 import { FHIRDefinitions, Type } from 'fhir-package-loader';
 
 let defs: FHIRDefinitions;
@@ -9,9 +10,12 @@ describe('Fisher', () => {
   beforeAll(async () => {
     defs = await loadExternalDependencies(['hl7.fhir.us.mcode@1.0.0']);
     fisher = new Fisher(defs);
+    loggerSpy.reset();
   });
 
   describe('fishForFHIR', () => {
+    // TODO: Add unit tests to ensure all supported Types can be fished
+    // TODO: Add unit test to ensure all Types are fished for when no Type is included
     it('should fish based on resource name', () => {
       const cancerPatient = fisher.fishForFHIR('CancerPatient', Type.Profile);
       expect(cancerPatient).toBeDefined();
@@ -35,6 +39,7 @@ describe('Fisher', () => {
   });
 
   describe('fishForMetadata', () => {
+    // TODO: Add unit tests to ensure metadata for all supported Types can be fished
     it('should fish metadata based on resource name', () => {
       const cancerPatientMetadata = fisher.fishForMetadata('CancerPatient', Type.Profile);
       expect(cancerPatientMetadata).toBeDefined();

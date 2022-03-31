@@ -1,5 +1,4 @@
 import { FHIRDefinitions, Type } from 'fhir-package-loader';
-import { cloneDeep } from 'lodash';
 
 interface Metadata {
   id: string;
@@ -42,53 +41,25 @@ export class Fisher {
       let def;
       switch (type) {
         case Type.Resource:
-          def = cloneDeep(
-            this.fhirDefs
-              .allResources()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.Resource);
           break;
         case Type.Logical:
-          def = cloneDeep(
-            this.fhirDefs
-              .allLogicals()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.Logical);
           break;
         case Type.Type:
-          def = cloneDeep(
-            this.fhirDefs
-              .allTypes()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.Type);
           break;
         case Type.Profile:
-          def = cloneDeep(
-            this.fhirDefs
-              .allProfiles()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.Profile);
           break;
         case Type.Extension:
-          def = cloneDeep(
-            this.fhirDefs
-              .allExtensions()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.Extension);
           break;
         case Type.ValueSet:
-          def = cloneDeep(
-            this.fhirDefs
-              .allValueSets()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.ValueSet);
           break;
         case Type.CodeSystem:
-          def = cloneDeep(
-            this.fhirDefs
-              .allCodeSystems()
-              .find(def => def.id === item || def.url === item || def.name === item)
-          );
+          def = this.fhirDefs.fishForFHIR(item, Type.CodeSystem);
           break;
         case Type.Instance: // don't support resolving to FHIR instances
         default:
