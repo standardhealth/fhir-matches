@@ -82,13 +82,17 @@ async function app() {
     // Load FHIR core versions to FHIR Defs
     if (a.fhirVersion && a.fhirVersion !== '4.0.1') {
       const fhirPackageId = determineCorePackageId(a.fhirVersion);
-      if (!defs.childFHIRDefs.filter(def => def.package === `${fhirPackageId}#${a.fhirVersion}`)) {
+      if (
+        !defs.allPackages().find(packageId => packageId === `${fhirPackageId}#${a.fhirVersion}`)
+      ) {
         loadDependency(fhirPackageId, a.fhirVersion, defs, undefined, logMessage);
       }
     }
     if (b.fhirVersion && b.fhirVersion !== '4.0.1') {
       const fhirPackageId = determineCorePackageId(b.fhirVersion);
-      if (!defs.childFHIRDefs.filter(def => def.package === `${fhirPackageId}#${b.fhirVersion}`)) {
+      if (
+        !defs.allPackages().find(packageId => packageId === `${fhirPackageId}#${b.fhirVersion}`)
+      ) {
         loadDependency(fhirPackageId, b.fhirVersion, defs, undefined, logMessage);
       }
     }
