@@ -10,7 +10,6 @@ describe('Dependencies', () => {
     loggerSpy.reset();
   });
 
-  // TODO: Add a describe bloc for determineCorePackageId
   describe('determineCorePackageId', () => {
     it('should recognize FHIR R4 version numbers', () => {
       const packageId1 = determineCorePackageId('4.0.1');
