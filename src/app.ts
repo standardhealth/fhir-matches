@@ -6,7 +6,9 @@ import process from 'process';
 import fs from 'fs-extra';
 import chalk, { Chalk } from 'chalk';
 import { padStart, padEnd } from 'lodash';
-import { logger } from './utils';
+import { loadDependency } from 'fhir-package-loader';
+import { determineCorePackageId, loadExternalDependencies } from './utils/Dependencies';
+import { logger, logMessage } from './utils';
 import { StructureDefinition } from 'fhir/r4';
 import { AggregateSDReviewer } from './reviewers/sd';
 import { Review, ReviewResult } from './reviewers';
@@ -29,11 +31,10 @@ async function app() {
       '-b, --resourceB <filepath>',
       'the file path to the second resource for comparison'
     )
-    // TODO: Implement dependency loading
-    // .option(
-    //   '-d, --dependency <dependency...>',
-    //   'specify dependencies to be loaded using format dependencyId@version (FHIR R4 included by default)'
-    // )
+    .option(
+      '-d, --dependency <dependency...>',
+      'specify dependencies to be loaded using format dependencyId@version (FHIR R4 included by default)'
+    )
     .option(
       '-l, --log-level <level>',
       'specify the level of log messages: error, warn, info (default), debug'
@@ -47,7 +48,7 @@ async function app() {
     .opts();
 
   // Set the log level. If no level specified, loggers default to info
-  const { logLevel } = options;
+  const { logLevel, dependency = [] } = options;
   if (logLevel === 'debug' || logLevel === 'warn' || logLevel === 'error') {
     logger.level = logLevel;
   }
@@ -56,12 +57,13 @@ async function app() {
   logger.info('Arguments:');
   logger.info(`  --resourceA ${options.resourceA}`);
   logger.info(`  --resourceB ${options.resourceB}`);
-  // TODO: Implement dependency loading
-  // if (options.dependency) {
-  //   options.dependency.forEach((d: string) =>
-  //     logger.info(`  --dependency ${d}`)
-  //   );
-  // }
+  if (dependency) {
+    dependency.forEach((d: string) => logger.info(`  --dependency ${d}`));
+  }
+
+  // Load FHIR R4 and included dependencies
+  const defs = await loadExternalDependencies(dependency);
+
   if (options.logLevel) {
     logger.info(`  --log-level ${options.logLevel}`);
   }
@@ -77,6 +79,24 @@ async function app() {
   }
 
   if (a && b) {
+    // Load FHIR core versions to FHIR Defs
+    if (a.fhirVersion && a.fhirVersion !== '4.0.1') {
+      const fhirPackageId = determineCorePackageId(a.fhirVersion);
+      if (
+        !defs.allPackages().find(packageId => packageId === `${fhirPackageId}#${a.fhirVersion}`)
+      ) {
+        loadDependency(fhirPackageId, a.fhirVersion, defs, undefined, logMessage);
+      }
+    }
+    if (b.fhirVersion && b.fhirVersion !== '4.0.1') {
+      const fhirPackageId = determineCorePackageId(b.fhirVersion);
+      if (
+        !defs.allPackages().find(packageId => packageId === `${fhirPackageId}#${b.fhirVersion}`)
+      ) {
+        loadDependency(fhirPackageId, b.fhirVersion, defs, undefined, logMessage);
+      }
+    }
+
     const reviewer = new AggregateSDReviewer();
     const review = reviewer.review(a, b);
 
